@@ -1,9 +1,16 @@
 import os
 import sqlite3
+import sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-DB_PATH = os.path.join(BASE_DIR, "data", "edupay.db")
 SCHEMA_PATH = os.path.join(BASE_DIR, "data", "schema.sql")
+
+if getattr(sys, "frozen", False):
+    DATA_DIR = os.path.join(os.environ.get("LOCALAPPDATA", os.path.expanduser("~")), "EduPay")
+else:
+    DATA_DIR = os.path.join(BASE_DIR, "data")
+
+DB_PATH = os.path.join(DATA_DIR, "edupay.db")
 
 
 def _table_exists(conn, table_name):
@@ -23,7 +30,10 @@ def init_db():
     with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
         schema_sql = f.read()
 
-    conn = get_connection()
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA foreign_keys = ON;")
+    conn.row_factory = sqlite3.Row
     try:
         conn.executescript(schema_sql)
 
