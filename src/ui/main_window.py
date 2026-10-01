@@ -108,7 +108,13 @@ class MainWindow(QMainWindow):
         self.setCentralWidget(central_widget)
 
     def refresh_table(self):
-        rows = calcul_service.lister_eleves(self.search_input.text())
+        try:
+            rows = calcul_service.lister_eleves(self.search_input.text())
+        except Exception as exc:  # pragma: no cover - safety net
+            self.table.setRowCount(0)
+            QMessageBox.warning(self, "Base de données indisponible", f"Erreur de chargement : {exc}")
+            return
+
         self.table.setRowCount(0)
 
         for row_index, row in enumerate(rows):

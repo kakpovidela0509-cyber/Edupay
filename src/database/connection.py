@@ -1,18 +1,17 @@
-import sqlite3
 import os
+import sqlite3
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 DB_PATH = os.path.join(BASE_DIR, "data", "edupay.db")
 SCHEMA_PATH = os.path.join(BASE_DIR, "data", "schema.sql")
 
 
-def get_connection():
-    """Établit la connexion avec la BDD SQLite."""
-    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute("PRAGMA foreign_keys = ON;")
-    conn.row_factory = sqlite3.Row
-    return conn
+def _table_exists(conn, table_name):
+    row = conn.execute(
+        "SELECT 1 FROM sqlite_master WHERE type='table' AND name = ?",
+        (table_name,),
+    ).fetchone()
+    return row is not None
 
 
 def init_db():
@@ -28,25 +27,41 @@ def init_db():
     try:
         conn.executescript(schema_sql)
 
-        columns = [row["name"] for row in conn.execute("PRAGMA table_info('eleve')").fetchall()]
-        if "matricule" not in columns:
-            conn.execute("ALTER TABLE eleve ADD COLUMN matricule TEXT")
-        if "annee_scolaire" not in columns:
-            conn.execute("ALTER TABLE eleve ADD COLUMN annee_scolaire TEXT NOT NULL DEFAULT '2025-2026'")
-        if "total_du" not in columns:
-            conn.execute("ALTER TABLE eleve ADD COLUMN total_du REAL NOT NULL DEFAULT 0")
+        if _table_exists(conn, "eleve"):
+            columns = [row["name"] for row in conn.execute("PRAGMA table_info('eleve')").fetchall()]
+            if "matricule" not in columns:
+                conn.execute("ALTER TABLE eleve ADD COLUMN matricule TEXT")
+            if "annee_scolaire" not in columns:
+                conn.execute("ALTER TABLE eleve ADD COLUMN annee_scolaire TEXT NOT NULL DEFAULT '2025-2026'")
+            if "total_du" not in columns:
+                conn.execute("ALTER TABLE eleve ADD COLUMN total_du REAL NOT NULL DEFAULT 0")
 
-        conn.execute(
-            "UPDATE eleve SET annee_scolaire = '2025-2026' WHERE annee_scolaire IS NULL OR annee_scolaire = ''"
-        )
-        conn.execute(
-            "UPDATE eleve SET total_du = 0 WHERE total_du IS NULL"
-        )
+            conn.execute(
+                "UPDATE eleve SET annee_scolaire = '2025-2026' WHERE annee_scolaire IS NULL OR annee_scolaire = ''"
+            )
+            conn.execute("UPDATE eleve SET total_du = 0 WHERE total_du IS NULL")
 
         conn.commit()
         print("Base de données EduPay initialisée avec succès !")
     finally:
         conn.close()
+
+
+def get_connection():
+    """Établit la connexion avec la BDD SQLite et initialise le schéma si nécessaire."""
+    os.makedirs(os.path.dirname(DB_PATH), exist_ok=True)
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("PRAGMA foreign_keys = ON;")
+    conn.row_factory = sqlite3.Row
+
+    if not _table_exists(conn, "eleve") or not _table_exists(conn, "paiement"):
+        conn.close()
+        init_db()
+        conn = sqlite3.connect(DB_PATH)
+        conn.execute("PRAGMA foreign_keys = ON;")
+        conn.row_factory = sqlite3.Row
+
+    return conn
 
 
 if __name__ == "__main__":

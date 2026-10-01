@@ -1,5 +1,6 @@
 import os
 import shutil
+import sqlite3
 import tempfile
 import unittest
 
@@ -45,6 +46,15 @@ class EduPayCoreTests(unittest.TestCase):
         self.assertEqual(rows[0]["total_du"], 300000)
         self.assertEqual(rows[0]["total_paye"], 150000)
         self.assertEqual(rows[0]["solde"], 150000)
+
+    def test_connection_auto_creates_missing_schema(self):
+        sqlite3.connect(self.db_path).close()
+        conn = connection.get_connection()
+        tables = conn.execute(
+            "SELECT name FROM sqlite_master WHERE type='table' AND name IN ('eleve', 'paiement')"
+        ).fetchall()
+        self.assertGreaterEqual(len(tables), 2)
+        conn.close()
 
 
 if __name__ == "__main__":
