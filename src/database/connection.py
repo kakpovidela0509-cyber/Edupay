@@ -3,7 +3,8 @@ import sqlite3
 import sys
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-SCHEMA_PATH = os.path.join(BASE_DIR, "data", "schema.sql")
+BUNDLE_DIR = getattr(sys, "_MEIPASS", BASE_DIR)
+SCHEMA_PATH = os.path.join(BUNDLE_DIR, "data", "schema.sql")
 
 if getattr(sys, "frozen", False):
     DATA_DIR = os.path.join(os.environ.get("LOCALAPPDATA", os.path.expanduser("~")), "EduPay")
