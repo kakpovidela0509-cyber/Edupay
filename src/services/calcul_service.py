@@ -70,17 +70,18 @@ def lister_eleves(texte="", classe=None, statut_filtre=None):
 
 # ---------- Élèves ----------
 
-def ajouter_eleve(nom, prenom, classe, annee_scolaire, total_du):
+def ajouter_eleve(nom, prenom, classe, annee_scolaire, total_du, matricule=None):
     return eleve_dao.ajouter(
         _texte(nom, "Nom"),
         _texte(prenom, "Prénom"),
         _texte(classe, "Classe"),
         _texte(annee_scolaire, "Année scolaire"),
         _nombre(total_du, "Le montant total dû", strictement_positif=False),
+        matricule=(matricule or None),
     )
 
 
-def modifier_eleve(eleve_id, nom, prenom, classe, annee_scolaire, total_du):
+def modifier_eleve(eleve_id, nom, prenom, classe, annee_scolaire, total_du, matricule=None):
     total_du = _nombre(total_du, "Le montant total dû", strictement_positif=False)
     deja_paye = paiement_dao.somme_par_eleve(eleve_id)
     if total_du < deja_paye:
@@ -94,6 +95,7 @@ def modifier_eleve(eleve_id, nom, prenom, classe, annee_scolaire, total_du):
         _texte(classe, "Classe"),
         _texte(annee_scolaire, "Année scolaire"),
         total_du,
+        matricule=(matricule or None),
     )
 
 

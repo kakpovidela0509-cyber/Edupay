@@ -1,10 +1,11 @@
 -- Table des élèves
 CREATE TABLE IF NOT EXISTS eleve (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    matricule TEXT UNIQUE,
     nom TEXT NOT NULL,
     prenom TEXT NOT NULL,
     classe TEXT NOT NULL,
-    annee_scolaire TEXT NOT NULL,
+    annee_scolaire TEXT NOT NULL DEFAULT '2025-2026',
     total_du REAL NOT NULL CHECK (total_du >= 0),
     created_at TEXT DEFAULT CURRENT_TIMESTAMP,
     updated_at TEXT DEFAULT CURRENT_TIMESTAMP

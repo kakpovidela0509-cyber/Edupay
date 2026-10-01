@@ -16,15 +16,33 @@ def get_connection():
 
 
 def init_db():
-    """Initialise les tables à partir de data/schema.sql."""
+    """Initialise les tables et applique les migrations SQLite nécessaires."""
     if not os.path.exists(SCHEMA_PATH):
         print(f"Erreur : fichier introuvable : {SCHEMA_PATH}")
         return
+
     with open(SCHEMA_PATH, "r", encoding="utf-8") as f:
         schema_sql = f.read()
+
     conn = get_connection()
     try:
         conn.executescript(schema_sql)
+
+        columns = [row["name"] for row in conn.execute("PRAGMA table_info('eleve')").fetchall()]
+        if "matricule" not in columns:
+            conn.execute("ALTER TABLE eleve ADD COLUMN matricule TEXT")
+        if "annee_scolaire" not in columns:
+            conn.execute("ALTER TABLE eleve ADD COLUMN annee_scolaire TEXT NOT NULL DEFAULT '2025-2026'")
+        if "total_du" not in columns:
+            conn.execute("ALTER TABLE eleve ADD COLUMN total_du REAL NOT NULL DEFAULT 0")
+
+        conn.execute(
+            "UPDATE eleve SET annee_scolaire = '2025-2026' WHERE annee_scolaire IS NULL OR annee_scolaire = ''"
+        )
+        conn.execute(
+            "UPDATE eleve SET total_du = 0 WHERE total_du IS NULL"
+        )
+
         conn.commit()
         print("Base de données EduPay initialisée avec succès !")
     finally:
