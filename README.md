@@ -8,7 +8,7 @@ Cette application aide à gérer les élèves, suivre les paiements, calculer le
 
 ## Contributeur principal
 
-- SAMVICdev
+-Kakpovidela
 
 ## Prérequis
 
