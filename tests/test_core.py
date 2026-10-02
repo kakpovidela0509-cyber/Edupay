@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 from src.database import connection, eleve_dao, paiement_dao
-from src.services import calcul_service
+from src.services import calcul_service, pdf_service
 
 
 class EduPayCoreTests(unittest.TestCase):
@@ -46,6 +46,14 @@ class EduPayCoreTests(unittest.TestCase):
         self.assertEqual(rows[0]["total_du"], 300000)
         self.assertEqual(rows[0]["total_paye"], 150000)
         self.assertEqual(rows[0]["solde"], 150000)
+        self.assertEqual(calcul_service.solde(eleve_id), 150000)
+        history = calcul_service.historique(eleve_id)
+        self.assertEqual(len(history), 1)
+        self.assertEqual(history[0]["numero_recu"], "REC-2026-00001")
+
+        receipts_dir = os.path.join(self.temp_dir, "recus")
+        receipt_path = pdf_service.generer_recu(paiement_id, dossier=receipts_dir)
+        self.assertTrue(os.path.isfile(receipt_path))
 
     def test_connection_auto_creates_missing_schema(self):
         sqlite3.connect(self.db_path).close()

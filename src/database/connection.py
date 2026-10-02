@@ -7,7 +7,12 @@ BUNDLE_DIR = getattr(sys, "_MEIPASS", BASE_DIR)
 SCHEMA_PATH = os.path.join(BUNDLE_DIR, "data", "schema.sql")
 
 if getattr(sys, "frozen", False):
-    DATA_DIR = os.path.join(os.environ.get("LOCALAPPDATA", os.path.expanduser("~")), "EduPay")
+    executable_dir = os.path.dirname(sys.executable)
+    project_data_dir = os.path.abspath(os.path.join(executable_dir, "..", "data"))
+    if os.path.isfile(os.path.join(project_data_dir, "edupay.db")):
+        DATA_DIR = project_data_dir
+    else:
+        DATA_DIR = os.path.join(os.environ.get("LOCALAPPDATA", os.path.expanduser("~")), "EduPay")
 else:
     DATA_DIR = os.path.join(BASE_DIR, "data")
 

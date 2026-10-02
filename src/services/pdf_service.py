@@ -4,11 +4,11 @@ from datetime import date
 from fpdf import FPDF
 
 from src.database import eleve_dao, paiement_dao
-from src.database.connection import BASE_DIR
+from src.database.connection import DATA_DIR
 from src.services.calcul_service import ScolariteError
 
-DOSSIER_RECUS = os.path.join(BASE_DIR, "data", "recus")
-NOM_ETABLISSEMENT = "Lycée de Tokoin"  # à remplacer par le nom de ton établissement
+DOSSIER_RECUS = os.path.join(DATA_DIR, "recus")
+NOM_ETABLISSEMENT = "Nom de l'établissement"  # à remplacer par le nom de ton établissement
 
 
 def _montant(valeur):
