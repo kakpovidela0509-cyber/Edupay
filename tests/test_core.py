@@ -64,6 +64,10 @@ class EduPayCoreTests(unittest.TestCase):
         self.assertGreaterEqual(len(tables), 2)
         conn.close()
 
+    def test_receipt_branding_uses_valid_establishment_name(self):
+        self.assertNotEqual(pdf_service.NOM_ETABLISSEMENT, "Nom de l'établissement")
+        self.assertTrue(pdf_service.NOM_ETABLISSEMENT.strip())
+
 
 if __name__ == "__main__":
     unittest.main()

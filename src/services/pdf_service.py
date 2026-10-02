@@ -8,7 +8,7 @@ from src.database.connection import DATA_DIR
 from src.services.calcul_service import ScolariteError
 
 DOSSIER_RECUS = os.path.join(DATA_DIR, "recus")
-NOM_ETABLISSEMENT = "Nom de l'établissement"  # à remplacer par le nom de ton établissement
+NOM_ETABLISSEMENT = "École EduPay"
 
 
 def _montant(valeur):
